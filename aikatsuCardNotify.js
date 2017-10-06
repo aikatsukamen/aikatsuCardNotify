@@ -41,7 +41,6 @@ function init() {
     }
 }
 
-
 // スターズ公式に取りに行く
 function getCardList() {
     const options = {
@@ -54,8 +53,11 @@ function getCardList() {
         old: [],
         new: []
     };
-    if (fs.existsSync(CONF.path.CARDLIST)) {
-        cardList.old = JSON.parse(fs.readFileSync(CONF.path.CARDLIST, 'utf8'));
+    try {
+        let old = JSON.parse(fs.readFileSync(CONF.path.CARDLIST, 'utf8'));
+        cardList.old = old;
+    } catch (e) {
+        logger.system.warn('ファイルが読めなかった。');
     }
 
     rp(options)
@@ -127,14 +129,20 @@ function getCardList() {
                 },
                 json: true // Automatically stringifies the body to JSON
             };
-            rp(options)
-                .then(function(parsedBody) {
-                    logger.system.info(parsedBody.url);
-                    logger.system.debug(parsedBody);
-                })
-                .catch(function(err) {
-                    logger.system.error(err);
-                });
+
+            // 更新あった時だけカツするようにした
+            if (diffmessage !== '') {
+                rp(options)
+                    .then(function(parsedBody) {
+                        logger.system.info(parsedBody.url);
+                        logger.system.debug(parsedBody);
+                    })
+                    .catch(function(err) {
+                        logger.system.error(err);
+                    });
+            } else {
+                logger.system.info('更新なし');
+            }
         })
         .catch(function(err) {
             logger.system.error(err);
