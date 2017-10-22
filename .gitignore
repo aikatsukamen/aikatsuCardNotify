@@ -1,5 +1,7 @@
 # app
+log/*
 data/*
+!.gitkeep
 
 # Logs
 logs
