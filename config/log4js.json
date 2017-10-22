@@ -1,23 +1,18 @@
 {
-    "log4js":
-    {
-        "appenders":
-        {
-            "file":
-            {
-                "type": "dateFile",
-                "filename": "./log/system.log",
-                "pattern": "-yyyy-MM-dd",
-                "backups": 5
-            }
-        },
-        "categories":
-        {
-            "default":
-            {
-                "appenders": ["file"],
-                "level": "info"
-            }
-        }
+  "log4js": {
+    "appenders": {
+      "system": {
+        "type": "dateFile",
+        "filename": "./log/system.log",
+        "pattern": "-yyyy-MM-dd",
+        "backups": 5
+      }
+    },
+    "categories": {
+      "default": {
+        "appenders": ["system"],
+        "level": "debug"
+      }
     }
+  }
 }

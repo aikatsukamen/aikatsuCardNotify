@@ -1,8 +1,8 @@
 'use strict';
 
-/*
+/********************************************
  * アイカツカードが更新されたら通知するやつ
- */
+ *******************************************/
 
 
 /*
@@ -19,7 +19,8 @@ const jsondiffpatch = require('jsondiffpatch');
  */
 const CONF = {
   kkt: {
-    BAERERTOKEN: process.env.NODE_KKT_TOKEN // kktのトークン
+    BAERERTOKEN: process.env.NODE_KKT_TOKEN, // kktのトークン
+    VISIBILITY: 'unlisted' // 公開範囲 "direct", "private", "unlisted" or "public"
   },
   path: {
     CARDLIST: './data/cardList.json' // カードリストの保存ファイル名
@@ -36,9 +37,10 @@ const CONF = {
  */
 function init() {
   if (!CONF.kkt.BAERERTOKEN) {
-    logger.system.error('KKTトークン未設定');
-    process.exit(1);
+    logger.system.fatal('KKTトークン未設定');
+    return false;
   }
+  return true;
 }
 
 // スターズ公式に取りに行く
@@ -55,7 +57,7 @@ function getCardList() {
     let old = JSON.parse(fs.readFileSync(CONF.path.CARDLIST, 'utf8'));
     cardList.old = old;
   } catch (e) {
-    logger.system.warn('ファイルが読めなかった。');
+    logger.system.warn('ファイルが読めなかった。[File]' + CONF.path.CARDLIST);
   }
 
   rp(options)
@@ -63,12 +65,12 @@ function getCardList() {
       // そのうちモジュールに切り分けたいね
 
       /* カードリストを取得して比較する */
-      $('.card').each(index => {
-        let id = $(this).find('span').text().trim();
+      $('.card').each((index, card) => {
+        let id = $(card).find('span').text().trim();
         id = id.replace(/\s/g, ' '); // プロモ識別のPとID間のスペースがまばらなので1文字で統一
-        let name = $(this).find('img').attr('alt');
-        //let imgUrl = CONF.url.DCDSTARS + $(this).find('img').attr('src').replace('../', '');
-        //let url = CONF.url.CARDLIST + $(this).find('a').attr('href');
+        let name = $(card).find('img').attr('alt');
+        //let imgUrl = CONF.url.DCDSTARS + $(card).find('img').attr('src').replace('../', '');
+        //let url = CONF.url.CARDLIST + $(card).find('a').attr('href');
         cardList.new.push(id + ' ' + name);
       });
 
@@ -86,11 +88,12 @@ function getCardList() {
           }
         });
       }
-      fs.writeFile(CONF.path.CARDLIST, JSON.stringify(cardList.new, null, '  '));
 
-      return { diff: diff, cardList: cardList, diffmessage: diffmessage };
+      fs.writeFile(CONF.path.CARDLIST, JSON.stringify(cardList.new, null, '  '));
+      return { 'diff': diff, 'cardList': cardList, 'diffmessage': diffmessage };
     })
     .then(diffInfo => {
+      logger.system.debug(JSON.stringify(diffInfo, null, '  '));
       /* 差分を投稿する */
       let katsu_content = '';
 
@@ -111,7 +114,7 @@ function getCardList() {
         'media_ids': null,
         'sensitive': null,
         'spoiler_text': '',
-        'visibility': 'public'
+        'visibility': CONF.kkt.VISIBILITY
       };
       // リクエストの生成
       let options = {
@@ -126,23 +129,24 @@ function getCardList() {
       };
 
       // 旧ファイルが取れて、更新あった時だけカツするようにした
-      if (diffInfo.old.length > 0 && diffInfo.diffmessage !== '') {
+      if (diffInfo.cardList.old.length > 0 && diffInfo.diffmessage !== '') {
         rp(options)
-          .then(function (parsedBody) {
+          .then(parsedBody => {
             logger.system.info(parsedBody.url);
             logger.system.debug(parsedBody);
           })
-          .catch(function (err) {
+          .catch(err => {
             logger.system.error(err);
           });
       } else {
         logger.system.info('更新なし');
       }
     })
-    .catch(function (err) {
+    .catch(err => {
       logger.system.error(err);
     });
 }
 
-init();
-getCardList();
+if (init()) {
+  getCardList();
+}
