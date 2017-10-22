@@ -2,9 +2,9 @@
   "name": "aikatsu-card-notify",
   "version": "1.0.0",
   "description": "アイカツカードの更新があったらkktに通知するやつ",
-  "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node bin/aikatsuCardNotify.js",
+    "auth": "node bin/auth.js"
   },
   "author": "aikatsukamen",
   "license": "MIT",
