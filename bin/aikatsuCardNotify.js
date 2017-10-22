@@ -19,7 +19,7 @@ const jsondiffpatch = require('jsondiffpatch');
 const CONF = {
   kkt: {
     BAERERTOKEN: process.env.NODE_KKT_TOKEN, // kktのトークン
-    VISIBILITY: 'unlisted' // 公開範囲 "direct", "private", "unlisted" or "public"
+    VISIBILITY: 'public' // 公開範囲 "direct", "private", "unlisted" or "public"
   },
   path: {
     CARDLIST: './data/cardList.json' // カードリストの保存ファイル名

@@ -11,7 +11,7 @@
     "categories": {
       "default": {
         "appenders": ["system"],
-        "level": "debug"
+        "level": "info"
       }
     }
   }
