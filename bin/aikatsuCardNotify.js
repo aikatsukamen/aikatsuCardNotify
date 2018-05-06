@@ -1,82 +1,88 @@
 'use strict';
 
-/********************************************
+/**
  * アイカツカードが更新されたら通知するやつ
- *******************************************/
+ */
 
-/*
+/**
  * パッケージ
  */
 const rp = require('request-promise');
-const cheerio = require('cheerio');
-const logger = require('./logger');
 const fs = require('fs');
 const jsondiffpatch = require('jsondiffpatch');
+const CONFIG = require('config');
+const logger = require('./logger');
+const mastodon = require('./mastodon');
+const stars = require('./aikatsuStars');
+const friends = require('./aikatsuFriends');
 
-/*
- * パラメータ
- */
-const CONF = {
-  kkt: {
-    BAERERTOKEN: process.env.NODE_KKT_TOKEN, // kktのトークン
-    VISIBILITY: 'public' // 公開範囲 "direct", "private", "unlisted" or "public"
-  },
-  path: {
-    CARDLIST: './data/cardList.json' // カードリストの保存ファイル名
-  },
-  url: {
-    DCDSTARS: 'http://www.aikatsu.com/stars/',
-    CARDLIST: 'http://www.aikatsu.com/stars/cardlist/',
-    HOSHITSUBAPROMO: 'http://www.aikatsu.com/stars/cardlist/dresslist.php?search=true&category=391801'
-  }
-};
-
-/*
- * プログラム
+/**
+ * 起動時処理
  */
 function init() {
-  if (!CONF.kkt.BAERERTOKEN) {
+  CONFIG.kkt.BAERERTOKEN = process.env.NODE_KKT_TOKEN || CONFIG.kkt.BAERERTOKEN;
+  if (!CONFIG.kkt.BAERERTOKEN) {
     logger.system.fatal('KKTトークン未設定');
-    return false;
+    process.exit();
   }
-  return true;
+  if (!CONFIG.targetList || CONFIG.targetList.length === 0) {
+    logger.system.fatal('ターゲット未指定');
+    process.exit();
+  }
 }
 
-// スターズ公式に取りに行く
-function getCardList() {
-  const options = {
-    uri: CONF.url.HOSHITSUBAPROMO,
-    transform: body => { return cheerio.load(body); }
+/**
+ * 指定された弾のカードリストを取得して差分があればカツする
+ * @param {String} targetUrl 取得対象のURL
+ * @param {String} aikatsuVer アイカツバージョン stars friends
+ * @param {String} fileName リストを保存するJSONファイル名
+ * @param {String} labelName 表示名
+ */
+async function getCardList(targetUrl, aikatsuVer, fileName, labelName) {
+  logger.system.info(`カードリスト取得開始：${labelName}`);
+  let flag = {
+    isFileLoaded: false,
+    isListUpdated: false
   };
-  let cardList = {
-    old: [],
-    new: []
-  };
+
+  let oldList = [];
+  let newList = [];
+  let diffmessage = `${targetUrl}\n`;
+
+  // 取得済みのリストを読み込む
   try {
-    let old = JSON.parse(fs.readFileSync(CONF.path.CARDLIST, 'utf8'));
-    cardList.old = old;
+    oldList = JSON.parse(fs.readFileSync(fileName, 'utf8'));
+    flag.isFileLoaded = true;
   } catch (e) {
-    logger.system.warn('ファイルが読めなかった。[File]' + CONF.path.CARDLIST);
+    logger.system.warn(`ファイルが読めなかった。[File]${fileName}`);
   }
 
-  rp(options)
-    .then($ => {
-      // そのうちモジュールに切り分けたいね
+  try {
+    // 指定された弾のカードリストを読み込む
+    switch (aikatsuVer) {
+      case 'stars':
+        newList = await stars.getCardList(targetUrl);
+        break;
+      case 'friends':
+        newList = await friends.getCardList(targetUrl);
+        break;
+      default:
+        logger.system.warn('未定義のバージョン指定');
+        return;
+    }
+    // 取得したカードリストの書き込み
+    fs.writeFile(fileName, JSON.stringify(newList, null, '  '), err => {
+      if (err) {
+        logger.system.error('ファイル書き込み時にエラー');
+        throw err;
+      }
+    });
 
-      /* カードリストを取得して比較する */
-      $('.card').each((index, card) => {
-        let id = $(card).find('span').text().trim();
-        id = id.replace(/\s/g, ' '); // プロモ識別のPとID間のスペースがまばらなので1文字で統一
-        let name = $(card).find('img').attr('alt');
-        //let imgUrl = CONF.url.DCDSTARS + $(card).find('img').attr('src').replace('../', '');
-        //let url = CONF.url.CARDLIST + $(card).find('a').attr('href');
-        cardList.new.push(id + ' ' + name);
-      });
-
-      // 差分抽出
-      let diff = jsondiffpatch.diff(cardList.old, cardList.new);
-      let diffmessage = '';
+    // 差分抽出
+    if (flag.isFileLoaded) {
+      let diff = jsondiffpatch.diff(oldList, newList);
       if (diff) {
+        flag.isListUpdated = true;
         Object.keys(diff).forEach(num => {
           if (num.match('_') === null) {
             // 増えたもの
@@ -87,65 +93,25 @@ function getCardList() {
           }
         });
       }
+      logger.system.debug('差分情報:' + diffmessage);
+    }
 
-      fs.writeFile(CONF.path.CARDLIST, JSON.stringify(cardList.new, null, '  '));
-      return { 'diff': diff, 'cardList': cardList, 'diffmessage': diffmessage };
-    })
-    .then(diffInfo => {
-      logger.system.debug(JSON.stringify(diffInfo, null, '  '));
-      /* 差分を投稿する */
-      let katsu_content = '';
-
-      // 投稿用メッセージ生成
-      if (diffInfo.diffmessage !== '') {
-        // 差分ありメッセージ
-        katsu_content = '【bot】星ツバプロモに更新があったようです。\n' + diffInfo.diffmessage;
-      } else {
-        // 差分なしメッセージ
-        katsu_content = '【bot】星ツバプロモに更新はありませんでした。';
-      }
-      // MASTODONの文字数制限に抑える
-      katsu_content = katsu_content.substr(0, 499);
-
-      let katsu_body = {
-        'status': katsu_content,
-        'in_reply_to_id': null,
-        'media_ids': null,
-        'sensitive': null,
-        'spoiler_text': '',
-        'visibility': CONF.kkt.VISIBILITY
-      };
-      // リクエストの生成
-      let options = {
-        method: 'POST',
-        uri: 'https://kirakiratter.com/api/v1/statuses',
-        body: katsu_body,
-        headers: {
-          'Authorization': 'Bearer ' + CONF.kkt.BAERERTOKEN,
-          'Content-type': 'application/json'
-        },
-        json: true
-      };
-
-      // 旧ファイルが取れて、更新あった時だけカツするようにした
-      if (diffInfo.cardList.old.length > 0 && diffInfo.diffmessage !== '') {
-        rp(options)
-          .then(parsedBody => {
-            logger.system.info(parsedBody.url);
-            logger.system.debug(parsedBody);
-          })
-          .catch(err => {
-            logger.system.error(err);
-          });
-      } else {
-        logger.system.info('更新なし');
-      }
-    })
-    .catch(err => {
-      logger.system.error(err);
-    });
+    // 差分を投稿する
+    // 旧ファイルが取れて、更新あった時だけカツする
+    if (flag.isFileLoaded && flag.isListUpdated) {
+      logger.system.info(`更新あり：${labelName}`);
+      let katsu_content = `【bot】${labelName}に更新があったようです。\n${diffmessage}`;
+      mastodon.tootMastodon(katsu_content, CONFIG.kkt.url, CONFIG.kkt.BAERERTOKEN, CONFIG.kkt.VISIBILITY);
+    } else {
+      logger.system.info(`更新なし：${labelName}`);
+    }
+  } catch (e) {
+    logger.system.error(e);
+  }
 }
 
-if (init()) {
-  getCardList();
+init();
+
+for (let target of CONFIG.targetList) {
+  getCardList(target.url, target.aikatsuVer, target.fileName, target.labelName);
 }

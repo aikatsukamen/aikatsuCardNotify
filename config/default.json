@@ -1,0 +1,22 @@
+{
+  "kkt": {
+    "url": "https://kirakiratter.com/api/v1/statuses",
+    "BAERERTOKEN": null,
+    "//": "公開範囲 direct, private, unlisted or public",
+    "VISIBILITY": "public"
+  },
+  "targetList": [
+    {
+      "url": "http://www.aikatsu.com/stars/cardlist/dresslist.php?search=true&category=391801",
+      "fileName": "./data/cardListStarsHoshiTsubaPromo.json",
+      "aikatsuVer": "stars",
+      "labelName": "スターズ星ツバプロモ"
+    },
+    {
+      "url": "http://www.aikatsu.com/friends/cardlist/?search=true&category=458901",
+      "fileName": "./data/cardListFriendsPromo.json",
+      "aikatsuVer": "friends",
+      "labelName": "フレンズプロモ"
+    }
+  ]
+}

@@ -62,8 +62,6 @@ typings/
 # dotenv environment variables file
 .env
 
-# Linter
-.eslintrc
 
 # Remote-FTP
 .ftpconfig
