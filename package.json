@@ -1,9 +1,9 @@
 {
   "name": "aikatsu-card-notify",
   "version": "1.0.0",
-  "description": "アイカツカードの更新があったらkktに通知するやつ",
+  "description": "アイカツの更新があったらkktに通知するやつ",
   "scripts": {
-    "start": "node bin/aikatsuCardNotify.js",
+    "start": "node bin/aikatsuNotify.js",
     "auth": "node bin/auth.js"
   },
   "author": "aikatsukamen",

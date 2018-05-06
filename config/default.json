@@ -17,6 +17,12 @@
       "fileName": "./data/cardListFriendsPromo.json",
       "aikatsuVer": "friends",
       "labelName": "フレンズプロモ"
+    },
+    {
+      "url": "http://www.aikatsu.com/friends/",
+      "fileName": "./data/newsListFriends.json",
+      "aikatsuVer": "friendsNews",
+      "labelName": "フレンズニュース"
     }
   ]
 }

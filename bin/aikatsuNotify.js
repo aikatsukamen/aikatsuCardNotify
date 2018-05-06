@@ -1,7 +1,7 @@
 'use strict';
 
 /**
- * アイカツカードが更新されたら通知するやつ
+ * アイカツが更新されたら通知するやつ
  */
 
 /**
@@ -32,14 +32,14 @@ function init() {
 }
 
 /**
- * 指定された弾のカードリストを取得して差分があればカツする
+ * 指定されたURLから得られるリストを取得して差分があればカツする
  * @param {String} targetUrl 取得対象のURL
- * @param {String} aikatsuVer アイカツバージョン stars friends
+ * @param {String} aikatsuVer アイカツバージョン stars friends friendsNews
  * @param {String} fileName リストを保存するJSONファイル名
  * @param {String} labelName 表示名
  */
-async function getCardList(targetUrl, aikatsuVer, fileName, labelName) {
-  logger.system.info(`カードリスト取得開始：${labelName}`);
+async function getList(targetUrl, aikatsuVer, fileName, labelName) {
+  logger.system.info(`取得開始：${labelName}`);
   let flag = {
     isFileLoaded: false,
     isListUpdated: false
@@ -47,7 +47,7 @@ async function getCardList(targetUrl, aikatsuVer, fileName, labelName) {
 
   let oldList = [];
   let newList = [];
-  let diffmessage = `${targetUrl}\n`;
+  let diffmessage = '';
 
   // 取得済みのリストを読み込む
   try {
@@ -58,19 +58,24 @@ async function getCardList(targetUrl, aikatsuVer, fileName, labelName) {
   }
 
   try {
-    // 指定された弾のカードリストを読み込む
+    // 指定されたバージョンに応じたリストを読み込む
     switch (aikatsuVer) {
       case 'stars':
+        diffmessage = `${targetUrl}\n`;
         newList = await stars.getCardList(targetUrl);
         break;
       case 'friends':
+        diffmessage = `${targetUrl}\n`;
         newList = await friends.getCardList(targetUrl);
+        break;
+      case 'friendsNews':
+        newList = await friends.getNewsList(targetUrl);
         break;
       default:
         logger.system.warn('未定義のバージョン指定');
         return;
     }
-    // 取得したカードリストの書き込み
+    // 取得したリストの書き込み
     fs.writeFile(fileName, JSON.stringify(newList, null, '  '), err => {
       if (err) {
         logger.system.error('ファイル書き込み時にエラー');
@@ -86,10 +91,10 @@ async function getCardList(targetUrl, aikatsuVer, fileName, labelName) {
         Object.keys(diff).forEach(num => {
           if (num.match('_') === null) {
             // 増えたもの
-            diffmessage += '追加：' + diff[num][0] + '\n';
+            diffmessage += diff[num][0] + '\n';
           } else if (num.match(/\d/)) {
             // 減ったもの
-            diffmessage += '削除：' + diff[num][0] + '\n';
+            // diffmessage += '削除：' + diff[num][0] + '\n';
           }
         });
       }
@@ -100,7 +105,7 @@ async function getCardList(targetUrl, aikatsuVer, fileName, labelName) {
     // 旧ファイルが取れて、更新あった時だけカツする
     if (flag.isFileLoaded && flag.isListUpdated) {
       logger.system.info(`更新あり：${labelName}`);
-      let katsu_content = `【bot】${labelName}に更新があったようです。\n${diffmessage}`;
+      let katsu_content = `${labelName}に更新あり。\n${diffmessage}`;
       mastodon.tootMastodon(katsu_content, CONFIG.kkt.url, CONFIG.kkt.BAERERTOKEN, CONFIG.kkt.VISIBILITY);
     } else {
       logger.system.info(`更新なし：${labelName}`);
@@ -113,5 +118,5 @@ async function getCardList(targetUrl, aikatsuVer, fileName, labelName) {
 init();
 
 for (let target of CONFIG.targetList) {
-  getCardList(target.url, target.aikatsuVer, target.fileName, target.labelName);
+  getList(target.url, target.aikatsuVer, target.fileName, target.labelName);
 }
