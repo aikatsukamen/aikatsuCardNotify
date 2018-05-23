@@ -13,6 +13,7 @@ const jsondiffpatch = require('jsondiffpatch');
 const CONFIG = require('config');
 const logger = require('./logger');
 const mastodon = require('./mastodon');
+const aikatsu = require('./aikatsu');
 const stars = require('./aikatsuStars');
 const friends = require('./aikatsuFriends');
 
@@ -60,9 +61,17 @@ async function getList(targetUrl, aikatsuVer, fileName, labelName) {
   try {
     // 指定されたバージョンに応じたリストを読み込む
     switch (aikatsuVer) {
+      case 'aikatsuNews':
+        diffmessage = `${targetUrl}\n`;
+        newList = await aikatsu.getNewsList(targetUrl);
+        break;
       case 'stars':
         diffmessage = `${targetUrl}\n`;
         newList = await stars.getCardList(targetUrl);
+        break;
+      case 'starsNews':
+        diffmessage = `${targetUrl}\n`;
+        newList = await stars.getNewsList(targetUrl);
         break;
       case 'friends':
         diffmessage = `${targetUrl}\n`;

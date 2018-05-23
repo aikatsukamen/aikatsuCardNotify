@@ -7,10 +7,22 @@
   },
   "targetList": [
     {
+      "url": "http://www.aikatsu.com/aikatsu.php",
+      "fileName": "./data/newsListAikatsu.json",
+      "aikatsuVer": "aikatsuNews",
+      "labelName": "アイカツニュース"
+    },
+    {
       "url": "http://www.aikatsu.com/stars/cardlist/dresslist.php?search=true&category=391801",
       "fileName": "./data/cardListStarsHoshiTsubaPromo.json",
       "aikatsuVer": "stars",
       "labelName": "スターズ星ツバプロモ"
+    },
+    {
+      "url": "http://www.aikatsu.com/stars/",
+      "fileName": "./data/newsListStars.json",
+      "aikatsuVer": "starsNews",
+      "labelName": "スターズニュース"
     },
     {
       "url": "http://www.aikatsu.com/friends/cardlist/?search=true&category=458901",
