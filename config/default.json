@@ -35,6 +35,12 @@
       "fileName": "./data/newsListFriends.json",
       "aikatsuVer": "friendsNews",
       "labelName": "フレンズニュース"
+    },
+    {
+      "url": "http://p-bandai.jp/chara/c2017/?page=0&n=60&C5=all",
+      "fileName": "./data/pBanItemAikatsuSeries.json",
+      "aikatsuVer": "pBandai",
+      "labelName": "プレミアムバンダイ アイカツ！シリーズ"
     }
   ]
 }

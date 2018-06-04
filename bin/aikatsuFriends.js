@@ -1,8 +1,7 @@
 /**
  * アイカツフレンズのカードを取得する
  */
-const rp = require('request-promise');
-const cheerio = require('cheerio');
+const client = require('cheerio-httpcli');
 const logger = require('./logger');
 
 /**
@@ -13,14 +12,11 @@ const logger = require('./logger');
 function getCardList(targetUrl) {
   return new Promise((resolve, reject) => {
     let cardList = [];
-    const options = {
-      uri: targetUrl,
-      transform: body => {
-        return cheerio.load(body);
-      }
-    };
-    rp(options)
-      .then($ => {
+
+    client
+      .fetch(targetUrl)
+      .then(result => {
+        const $ = result.$;
         // カードリストを取得する
         $('#lists > .data').each((index, cardDetail) => {
           let id = $(cardDetail)
@@ -51,14 +47,11 @@ function getCardList(targetUrl) {
 function getNewsList(targetUrl) {
   return new Promise((resolve, reject) => {
     let newsList = [];
-    const options = {
-      uri: targetUrl,
-      transform: body => {
-        return cheerio.load(body);
-      }
-    };
-    rp(options)
-      .then($ => {
+
+    client
+      .fetch(targetUrl)
+      .then(result => {
+        const $ = result.$;
         // カードリストを取得する
         $('.topicsCol-box > dl').each((index, newsDetail) => {
           $(newsDetail)

@@ -16,6 +16,7 @@ const mastodon = require('./mastodon');
 const aikatsu = require('./aikatsu');
 const stars = require('./aikatsuStars');
 const friends = require('./aikatsuFriends');
+const pBandai = require('./premiumBandai');
 
 /**
  * 起動時処理
@@ -62,7 +63,6 @@ async function getList(targetUrl, aikatsuVer, fileName, labelName) {
     // 指定されたバージョンに応じたリストを読み込む
     switch (aikatsuVer) {
       case 'aikatsuNews':
-        diffmessage = `${targetUrl}\n`;
         newList = await aikatsu.getNewsList(targetUrl);
         break;
       case 'stars':
@@ -70,7 +70,6 @@ async function getList(targetUrl, aikatsuVer, fileName, labelName) {
         newList = await stars.getCardList(targetUrl);
         break;
       case 'starsNews':
-        diffmessage = `${targetUrl}\n`;
         newList = await stars.getNewsList(targetUrl);
         break;
       case 'friends':
@@ -79,6 +78,9 @@ async function getList(targetUrl, aikatsuVer, fileName, labelName) {
         break;
       case 'friendsNews':
         newList = await friends.getNewsList(targetUrl);
+        break;
+      case 'pBandai':
+        newList = await pBandai.getItemList(targetUrl);
         break;
       default:
         logger.system.warn('未定義のバージョン指定');
@@ -96,13 +98,14 @@ async function getList(targetUrl, aikatsuVer, fileName, labelName) {
     if (flag.isFileLoaded) {
       let diff = jsondiffpatch.diff(oldList, newList);
       if (diff) {
-        flag.isListUpdated = true;
         Object.keys(diff).forEach(num => {
           if (num.match('_') === null) {
             // 増えたもの
             diffmessage += diff[num][0] + '\n';
+            flag.isListUpdated = true;
           } else if (num.match(/\d/)) {
-            // 減ったもの
+            // 減ったものは通知しなくていいか
+            logger.system.info('削除:' + diff[num][0]);
             // diffmessage += '削除：' + diff[num][0] + '\n';
           }
         });

@@ -2,10 +2,10 @@
   "log4js": {
     "appenders": {
       "system": {
-        "type": "dateFile",
+        "type": "file",
         "filename": "./log/system.log",
-        "pattern": "-yyyy-MM-dd",
-        "backups": 5
+        "maxLogSize": 10485760,
+        "backups": 1
       }
     },
     "categories": {
