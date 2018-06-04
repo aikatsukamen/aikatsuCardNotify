@@ -25,11 +25,13 @@ function init() {
   CONFIG.kkt.BAERERTOKEN = process.env.NODE_KKT_TOKEN || CONFIG.kkt.BAERERTOKEN;
   if (!CONFIG.kkt.BAERERTOKEN) {
     logger.system.fatal('KKTトークン未設定');
-    process.exit();
+    console.log('KKTトークン未設定');
+    logger.shutdown();
   }
   if (!CONFIG.targetList || CONFIG.targetList.length === 0) {
     logger.system.fatal('ターゲット未指定');
-    process.exit();
+    console.log('ターゲット未指定');
+    logger.shutdown();
   }
 }
 
