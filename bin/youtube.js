@@ -30,7 +30,7 @@ function getActivityList(targetUrl) {
       })
       .catch(err => {
         logger.system.error(err);
-        resolve(list);
+        reject();
       });
   });
 }
@@ -61,7 +61,7 @@ function getPlaylistItemsList(targetUrl) {
       })
       .catch(err => {
         logger.system.error(err);
-        resolve(list);
+        reject();
       });
   });
 }

@@ -17,16 +17,18 @@ function getItemList(targetUrl) {
       .fetch(targetUrl)
       .then(result => {
         const $ = result.$;
-        $('.pbFluid-p-card__tooltip__detail').each((index, detail) => {
-          let itemName = $(detail).text(); // 商品名
-          let url = $(detail).attr('href'); // 商品URL
-          // 商品に必要なリンクに絞り込む
-          url = url.match(/.*\//)[0];
-          // 相対なので、フルパスにする
-          url = targetUrl.match(/.*\//)[0] + url;
+        $('.pbFluid-p-card-list')
+          .find('.pbFluid-p-card__tooltip__detail')
+          .each((index, detail) => {
+            let itemName = $(detail).text(); // 商品名
+            let url = $(detail).attr('href'); // 商品URL
+            // 商品に必要なリンクに絞り込む
+            url = url.match(/.*\//)[0];
+            // 相対なので、フルパスにする
+            url = targetUrl.match(/.*\//)[0] + url;
 
-          list.push(`${itemName} ${url}`);
-        });
+            list.push(`${itemName} ${url}`);
+          });
 
         logger.system.debug(JSON.stringify(list, null, '  '));
         resolve(list);
