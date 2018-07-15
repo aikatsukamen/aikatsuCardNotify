@@ -5,6 +5,9 @@
     "//": "公開範囲 direct, private, unlisted or public",
     "VISIBILITY": "public"
   },
+  "youtube": {
+    "apiKey": null
+  },
   "targetList": [
     {
       "url": "http://www.aikatsu.com/aikatsu.php",
@@ -41,6 +44,20 @@
       "fileName": "./data/pBanItemAikatsuSeries.json",
       "aikatsuVer": "pBandai",
       "labelName": "プレミアムバンダイ アイカツ！シリーズ"
+    },
+    {
+      "url": "https://www.googleapis.com/youtube/v3/activities?part=snippet&channelId=UCDOJkSTUNY3_NKawpkPvjHg",
+      "preMessage": "https://www.youtube.com/user/aikatsuTV/videos \n",
+      "fileName": "./data/youtubeAitube.json",
+      "aikatsuVer": "youtubeActivity",
+      "labelName": "Youtube アイチューブ"
+    },
+    {
+      "url": "https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=PLcpNwSdDWNrzL8uemSgkcGQd-h3zxuAbv",
+      "preMessage": "https://www.youtube.com/playlist?list=PLcpNwSdDWNrzL8uemSgkcGQd-h3zxuAbv \n",
+      "fileName": "./data/youtubeBandaiFriends.json",
+      "aikatsuVer": "youtubePlaylistItems",
+      "labelName": "Youtube BandaiChannelアイカツフレンズ"
     }
   ]
 }

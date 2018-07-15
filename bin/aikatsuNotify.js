@@ -17,6 +17,7 @@ const aikatsu = require('./aikatsu');
 const stars = require('./aikatsuStars');
 const friends = require('./aikatsuFriends');
 const pBandai = require('./premiumBandai');
+const youtube = require('./youtube');
 
 /**
  * 起動時処理
@@ -26,13 +27,14 @@ function init() {
   if (!CONFIG.kkt.BAERERTOKEN) {
     logger.system.fatal('KKTトークン未設定');
     console.log('KKTトークン未設定');
-    logger.shutdown();
+    logger.shutdown(1);
   }
   if (!CONFIG.targetList || CONFIG.targetList.length === 0) {
     logger.system.fatal('ターゲット未指定');
     console.log('ターゲット未指定');
-    logger.shutdown();
+    logger.shutdown(2);
   }
+  CONFIG.youtube.apiKey = process.env.NODE_GOOGLE_API_TOKEN || CONFIG.youtube.apiKey;
 }
 
 /**
@@ -42,7 +44,7 @@ function init() {
  * @param {String} fileName リストを保存するJSONファイル名
  * @param {String} labelName 表示名
  */
-async function getList(targetUrl, aikatsuVer, fileName, labelName) {
+async function getList(targetUrl, aikatsuVer, fileName, labelName, preMessage) {
   logger.system.info(`取得開始：${labelName}`);
   let flag = {
     isFileLoaded: false,
@@ -83,6 +85,14 @@ async function getList(targetUrl, aikatsuVer, fileName, labelName) {
         break;
       case 'pBandai':
         newList = await pBandai.getItemList(targetUrl);
+        break;
+      case 'youtubeActivity':
+        diffmessage = preMessage;
+        newList = await youtube.getActivityList(targetUrl + '&key=' + CONFIG.youtube.apiKey);
+        break;
+      case 'youtubePlaylistItems':
+        diffmessage = preMessage;
+        newList = await youtube.getPlaylistItemsList(targetUrl + '&key=' + CONFIG.youtube.apiKey);
         break;
       default:
         logger.system.warn('未定義のバージョン指定');
@@ -132,5 +142,5 @@ async function getList(targetUrl, aikatsuVer, fileName, labelName) {
 init();
 
 for (let target of CONFIG.targetList) {
-  getList(target.url, target.aikatsuVer, target.fileName, target.labelName);
+  getList(target.url, target.aikatsuVer, target.fileName, target.labelName, target.preMessage);
 }

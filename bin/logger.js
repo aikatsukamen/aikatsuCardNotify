@@ -8,9 +8,9 @@ log4js.configure(config.log4js);
 /**
  * log4jsのシャットダウン
  */
-const customShutdown = () => {
+const customShutdown = num => {
   log4js.shutdown(() => {
-    process.exit(1);
+    process.exit(num);
   });
 };
 
