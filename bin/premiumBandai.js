@@ -18,6 +18,7 @@ function getItemList(targetUrl) {
       .then(result => {
         const $ = result.$;
         $('.pbFluid-p-card-list')
+          .find('.pbFluid-p-card')
           .find('.pbFluid-p-card__tooltip__detail')
           .each((index, detail) => {
             let itemName = $(detail).text(); // 商品名
@@ -25,7 +26,7 @@ function getItemList(targetUrl) {
             // 商品に必要なリンクに絞り込む
             url = url.match(/.*\//)[0];
             // 相対なので、フルパスにする
-            url = targetUrl.match(/.*\//)[0] + url;
+            url = targetUrl.match(/(.*)\//)[1] + url;
 
             list.push(`${itemName} ${url}`);
           });

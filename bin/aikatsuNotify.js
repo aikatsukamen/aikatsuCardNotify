@@ -130,7 +130,7 @@ async function getList(targetUrl, aikatsuVer, fileName, labelName, preMessage) {
     if (flag.isFileLoaded && flag.isListUpdated) {
       logger.system.info(`更新あり：${labelName}`);
       let katsu_content = `${labelName}に更新あり。\n${diffmessage}`;
-      mastodon.tootMastodon(katsu_content, CONFIG.kkt.url, CONFIG.kkt.BAERERTOKEN, CONFIG.kkt.VISIBILITY);
+      mastodon.tootMastodon(katsu_content, CONFIG.kkt.url, CONFIG.kkt.BAERERTOKEN, CONFIG.kkt.VISIBILITY, CONFIG.kkt.hashtag);
     } else {
       logger.system.info(`更新なし：${labelName}`);
     }

@@ -3,7 +3,8 @@
     "url": "https://kirakiratter.com/api/v1/statuses",
     "BAERERTOKEN": null,
     "//": "公開範囲 direct, private, unlisted or public",
-    "VISIBILITY": "public"
+    "VISIBILITY": "public",
+    "hashtag": "\n#robokatsu"
   },
   "youtube": {
     "apiKey": null

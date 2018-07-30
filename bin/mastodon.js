@@ -5,9 +5,10 @@
 const rp = require('request-promise');
 const logger = require('./logger');
 
-function tootMastodon(rawmessage, statusUrl, token, visibility) {
+function tootMastodon(rawmessage, statusUrl, token, visibility, hashtag) {
   // MASTODONの文字数制限に抑える
-  let content = rawmessage.substr(0, 499);
+  let content = rawmessage.substr(0, 499 - hashtag.length);
+  content += hashtag;
 
   // 投稿内容
   let tootBody = {
