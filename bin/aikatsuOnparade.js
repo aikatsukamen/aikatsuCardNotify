@@ -63,9 +63,7 @@ function getNewsList(targetUrl) {
           let message = $(newsDetail)
             .find('dd')
             .text();
-          let url = $(newsDetail)
-            .find('dd > a')
-            .attr('href');
+          let url = $(newsDetail).attr('href');
 
           newsList.push(`${date} ${message} ${url}`);
         });
