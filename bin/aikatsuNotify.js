@@ -16,6 +16,7 @@ const mastodon = require('./mastodon');
 const aikatsu = require('./aikatsu');
 const stars = require('./aikatsuStars');
 const friends = require('./aikatsuFriends');
+const onparade = require('./aikatsuOnparade');
 const pBandai = require('./premiumBandai');
 const youtube = require('./youtube');
 
@@ -83,6 +84,14 @@ async function getList(targetUrl, aikatsuVer, fileName, labelName, preMessage) {
       case 'friendsNews':
         newList = await friends.getNewsList(targetUrl);
         break;
+      case 'onparade':
+        diffmessage = `${targetUrl}\n`;
+        newList = await onparade.getCardList(targetUrl);
+        break;
+      case 'onparadeNews':
+        newList = await onparade.getNewsList(targetUrl);
+        break;
+
       case 'pBandai':
         newList = await pBandai.getItemList(targetUrl);
         break;

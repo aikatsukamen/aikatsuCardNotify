@@ -41,6 +41,18 @@
       "labelName": "フレンズニュース"
     },
     {
+      "url": "http://www.aikatsu.com/onparade/cardlist/?search=true&category=491901",
+      "fileName": "./data/cardListOnparadePromo.json",
+      "aikatsuVer": "onparade",
+      "labelName": "オンパレードプロモ"
+    },
+    {
+      "url": "http://www.aikatsu.com/onparade/",
+      "fileName": "./data/newsListOnparade.json",
+      "aikatsuVer": "onparadeNews",
+      "labelName": "オンパレードニュース"
+    },
+    {
       "url": "http://p-bandai.jp/chara/c2017/?page=0&n=60&C5=all",
       "fileName": "./data/pBanItemAikatsuSeries.json",
       "aikatsuVer": "pBandai",
@@ -59,6 +71,13 @@
       "fileName": "./data/youtubeBandaiFriends.json",
       "aikatsuVer": "youtubePlaylistItems",
       "labelName": "Youtube BandaiChannelアイカツフレンズ"
+    },
+    {
+      "url": "https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=PLcpNwSdDWNrxffeo-7xUuoLiMLHl_9-Ye",
+      "preMessage": "https://www.youtube.com/playlist?list=PLcpNwSdDWNrxffeo-7xUuoLiMLHl_9-Ye \n",
+      "fileName": "./data/youtubeBandaiOnParade.json",
+      "aikatsuVer": "youtubePlaylistItems",
+      "labelName": "Youtube BandaiChannelアイカツオンパレード"
     }
   ]
 }
