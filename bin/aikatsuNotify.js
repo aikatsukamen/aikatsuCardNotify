@@ -4,9 +4,6 @@
  * アイカツが更新されたら通知するやつ
  */
 
-/**
- * パッケージ
- */
 const rp = require('request-promise');
 const fs = require('fs');
 const jsondiffpatch = require('jsondiffpatch');
@@ -38,6 +35,33 @@ function init() {
   CONFIG.youtube.apiKey = process.env.NODE_GOOGLE_API_TOKEN || CONFIG.youtube.apiKey;
 }
 
+const retryOption = {
+  count: 0,
+  limit: 3,
+  interval: 1000
+};
+
+/**
+ * 関数のリトライ。失敗時はExceptionが飛ぶ
+ * @param {Function} fn
+ * @param {{count: number, limit: number, interval: number}} option
+ * @param  {...any} args
+ */
+const retry = (fn, option, ...args) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const data = await fn(...args);
+      resolve(data);
+    } catch (error) {
+      if (option.count >= option.limit) {
+        reject(error);
+      } else {
+        setTimeout(async () => resolve(await retry(fn, { ...option, count: option.count + 1 }, ...args)), option.interval);
+      }
+    }
+  });
+};
+
 /**
  * 指定されたURLから得られるリストを取得して差分があればカツする
  * @param {String} targetUrl 取得対象のURL
@@ -68,40 +92,40 @@ async function getList(targetUrl, aikatsuVer, fileName, labelName, preMessage) {
     // 指定されたバージョンに応じたリストを読み込む
     switch (aikatsuVer) {
       case 'aikatsuNews':
-        newList = await aikatsu.getNewsList(targetUrl);
+        newList = await retry(aikatsu.getNewsList, retryOption, targetUrl);
         break;
       case 'stars':
         diffmessage = `${targetUrl}\n`;
-        newList = await stars.getCardList(targetUrl);
+        newList = await retry(stars.getCardList, retryOption, targetUrl);
         break;
       case 'starsNews':
-        newList = await stars.getNewsList(targetUrl);
+        newList = await retry(stars.getNewsList, retryOption, targetUrl);
         break;
       case 'friends':
         diffmessage = `${targetUrl}\n`;
-        newList = await friends.getCardList(targetUrl);
+        newList = await retry(friends.getCardList, retryOption, targetUrl);
         break;
       case 'friendsNews':
-        newList = await friends.getNewsList(targetUrl);
+        newList = await retry(friends.getNewsList, retryOption, targetUrl);
         break;
       case 'onparade':
         diffmessage = `${targetUrl}\n`;
-        newList = await onparade.getCardList(targetUrl);
+        newList = await retry(onparade.getCardList, retryOption, targetUrl);
         break;
       case 'onparadeNews':
-        newList = await onparade.getNewsList(targetUrl);
+        newList = await retry(onparade.getNewsList, retryOption, targetUrl);
         break;
 
       case 'pBandai':
-        newList = await pBandai.getItemList(targetUrl);
+        newList = await retry(pBandai.getItemList, retryOption, targetUrl);
         break;
       case 'youtubeActivity':
         diffmessage = preMessage;
-        newList = await youtube.getActivityList(targetUrl + '&key=' + CONFIG.youtube.apiKey);
+        newList = await retry(youtube.getActivityList, retryOption, targetUrl + '&key=' + CONFIG.youtube.apiKey);
         break;
       case 'youtubePlaylistItems':
         diffmessage = preMessage;
-        newList = await youtube.getPlaylistItemsList(targetUrl + '&key=' + CONFIG.youtube.apiKey);
+        newList = await retry(youtube.getPlaylistItemsList, retryOption, targetUrl + '&key=' + CONFIG.youtube.apiKey);
         break;
       default:
         logger.system.warn('未定義のバージョン指定');
@@ -139,17 +163,19 @@ async function getList(targetUrl, aikatsuVer, fileName, labelName, preMessage) {
     if (flag.isFileLoaded && flag.isListUpdated) {
       logger.system.info(`更新あり：${labelName}`);
       let katsu_content = `${labelName}に更新あり。\n${diffmessage}`;
-      mastodon.tootMastodon(katsu_content, CONFIG.kkt.url, CONFIG.kkt.BAERERTOKEN, CONFIG.kkt.VISIBILITY, CONFIG.kkt.hashtag);
+      retry(mastodon.tootMastodon, retryOption, katsu_content, CONFIG.kkt.url, CONFIG.kkt.BAERERTOKEN, CONFIG.kkt.VISIBILITY, CONFIG.kkt.hashtag);
     } else {
       logger.system.info(`更新なし：${labelName}`);
     }
   } catch (e) {
-    logger.system.error(e);
+    logger.system.error(JSON.stringify(e, null, '  '));
   }
 }
 
+// トークン設定
 init();
 
+//
 for (let target of CONFIG.targetList) {
   getList(target.url, target.aikatsuVer, target.fileName, target.labelName, target.preMessage);
 }

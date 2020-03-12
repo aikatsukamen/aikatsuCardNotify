@@ -39,6 +39,7 @@ function tootMastodon(rawmessage, statusUrl, token, visibility, hashtag) {
     })
     .catch(err => {
       logger.system.error(err);
+      reject();
     });
 }
 

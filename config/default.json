@@ -47,6 +47,12 @@
       "labelName": "オンパレードプロモ"
     },
     {
+      "url": "http://www.aikatsu.com/onparade/cardlist/?search=true&category=491701",
+      "fileName": "./data/cardListOnparadeMachinePromo.json",
+      "aikatsuVer": "onparade",
+      "labelName": "オンパレードマシンプロモ"
+    },
+    {
       "url": "http://www.aikatsu.com/onparade/",
       "fileName": "./data/newsListOnparade.json",
       "aikatsuVer": "onparadeNews",
@@ -59,21 +65,21 @@
       "labelName": "プレミアムバンダイ アイカツ！シリーズ"
     },
     {
-      "url": "https://www.googleapis.com/youtube/v3/activities?part=snippet&channelId=UCDOJkSTUNY3_NKawpkPvjHg",
+      "url": "https://www.googleapis.com/youtube/v3/activities?part=snippet&channelId=UCDOJkSTUNY3_NKawpkPvjHg&maxResults=20",
       "preMessage": "https://www.youtube.com/user/aikatsuTV/videos \n",
       "fileName": "./data/youtubeAitube.json",
       "aikatsuVer": "youtubeActivity",
       "labelName": "Youtube アイチューブ"
     },
     {
-      "url": "https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=PLcpNwSdDWNrzL8uemSgkcGQd-h3zxuAbv",
+      "url": "https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=PLcpNwSdDWNrzL8uemSgkcGQd-h3zxuAbv&maxResults=20",
       "preMessage": "https://www.youtube.com/playlist?list=PLcpNwSdDWNrzL8uemSgkcGQd-h3zxuAbv \n",
       "fileName": "./data/youtubeBandaiFriends.json",
       "aikatsuVer": "youtubePlaylistItems",
       "labelName": "Youtube BandaiChannelアイカツフレンズ"
     },
     {
-      "url": "https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=PLcpNwSdDWNrxffeo-7xUuoLiMLHl_9-Ye",
+      "url": "https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=PLcpNwSdDWNrxffeo-7xUuoLiMLHl_9-Ye&maxResults=20",
       "preMessage": "https://www.youtube.com/playlist?list=PLcpNwSdDWNrxffeo-7xUuoLiMLHl_9-Ye \n",
       "fileName": "./data/youtubeBandaiOnParade.json",
       "aikatsuVer": "youtubePlaylistItems",
